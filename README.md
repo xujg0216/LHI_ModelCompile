@@ -109,6 +109,10 @@ unified-compile compile-from-config config.yaml
 ### 4. 启动 API 服务
 
 ```bash
+# 使用模块方式启动（推荐）
+python -m unified_compiler.api.server --port 8080
+
+# 或直接运行脚本
 cd unified_compiler/api
 python server.py
 ```
