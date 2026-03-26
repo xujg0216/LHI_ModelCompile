@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linkedhope 模型编译平台</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 25%, #93c5fd 50%, #60a5fa 75%, #3b82f6 100%);
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 1;
+        }
+
+        .logo-section {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+            animation: float 3s ease-in-out infinite;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .logo-wrapper img {
+            height: 80px;
+            width: auto;
+            display: block;
+        }
+
+        .title-section {
+            text-align: left;
+        }
+
+        .header h1 {
+            font-size: 40px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .header p {
+            font-size: 15px;
+            color: #64748b;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .server-settings-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 20px;
+            color: #1e40af;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .server-settings-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Content Styles */
+        .content {
+            padding: 48px 40px;
+        }
+
+        .form-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .form-section:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .form-section-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid;
+            border-image: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%) 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .form-group label::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 2px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: white;
+            color: #1e293b;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        /* File Upload Styles */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        .file-input-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            text-align: center;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .file-input-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+            border-radius: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .file-input-btn:hover {
+            border-color: #3b82f6;
+            border-style: solid;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .file-input-btn:hover::before {
+            opacity: 1;
+        }
+
+        .file-input-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .file-input-btn:hover .file-input-icon {
+            transform: scale(1.1);
+        }
+
+        .file-input-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            position: relative;
+            z-index: 1;
+        }
+
+        .file-input-hint {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .file-name {
+            margin-top: 16px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #2563eb;
+            font-weight: 600;
+            display: none;
+        }
+
+        .file-name:not(:empty) {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Output Path Preview */
+        .output-path-preview {
+            margin-top: 10px;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 10px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            color: #1e40af;
+            font-weight: 600;
+            border-left: 4px solid #3b82f6;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Device Selection */
+        .device-selection {
+            margin-top: 16px;
+        }
+
+        .device-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 16px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+        }
+
+        .device-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-item:hover {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .device-item.selected {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+
+        .device-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        .device-info {
+            flex: 1;
+        }
+
+        .device-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        .device-ip {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .device-path {
+            font-size: 12px;
+            color: #94a3b8;
+            font-family: 'SF Mono', 'Monaco', monospace;
+            margin-top: 4px;
+        }
+
+        .device-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge-ascend { background: #dc7f41; color: white; }
+        .badge-iluvatar { background: #6366f1; color: white; }
+        .badge-rockchip { background: #10b981; color: white; }
+
+        .manage-devices-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #3b82f6;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 12px;
+        }
+
+        .manage-devices-btn:hover {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.45);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            box-shadow: 0 10px 30px rgba(100, 116, 139, 0.35);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 15px 40px rgba(100, 116, 139, 0.45);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.35);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 15px 40px rgba(239, 68, 68, 0.45);
+        }
+
+        .btn-sm {
+            padding: 14px 24px;
+            font-size: 15px;
+        }
+
+        /* Status Box */
+        .status-box {
+            margin-top: 28px;
+            padding: 18px 22px;
+            border-radius: 14px;
+            display: none;
+            font-size: 15px;
+            font-weight: 500;
+            animation: slideIn 0.4s ease-out;
+            border-left: 4px solid;
+        }
+
+        .status-box.show {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-box.info {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-color: #3b82f6;
+            color: #1d4ed8;
+        }
+
+        .status-box.success {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .status-box.error {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .status-box.warning {
+            background: linear-gradient(135deg, #fffbeb 0%, #fde68a 100%);
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        /* Progress */
+        .progress-container {
+            margin-top: 32px;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 32px;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #2563eb 50%, #3b82f6 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #64748b;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* Push Progress Section */
+        .push-progress-section {
+            margin-top: 24px;
+            padding: 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .push-progress-section.show {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .push-progress-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .push-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .push-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .push-item-icon {
+            font-size: 20px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .push-item-info {
+            flex: 1;
+        }
+
+        .push-item-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .push-item-path {
+            font-size: 12px;
+            color: #64748b;
+            font-family: 'SF Mono', 'Monaco', monospace;
+        }
+
+        .push-item-progress {
+            width: 100px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .push-item-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .push-item-status {
+            font-size: 13px;
+            font-weight: 500;
+            min-width: 80px;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .push-item-error {
+            font-size: 11px;
+            color: #ef4444;
+            font-weight: 400;
+            text-align: right;
+        }
+
+        /* Result Section */
+        .result-section {
+            margin-top: 32px;
+            padding: 32px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 16px;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-section h3 {
+            font-size: 19px;
+            margin-bottom: 24px;
+            color: #1e293b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .result-item {
+            display: flex;
+            flex-direction: column;
+            padding: 18px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .result-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .result-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border-color: #3b82f6;
+        }
+
+        .result-label {
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 15px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            word-break: break-all;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 28px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .footer p {
+            margin: 4px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            .device-list {
+                grid-template-columns: 1fr;
+            }
+            .logo-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            .title-section {
+                text-align: center;
+            }
+        }
+
+        /* Icon styles */
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+        }
+
+        .icon-file { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .icon-task { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .icon-settings { background: linear-gradient(135deg, #64748b 0%, #475569 100%); }
+        .icon-push { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+        .icon-upload { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+        .icon-download { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .icon-delete { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <div class="logo-wrapper">
+                    <img src="./logo.png" alt="LinkedHope Logo">
+                </div>
+                <div class="title-section">
+                    <h1>Linkedhope 模型编译平台</h1>
+                    <p>统一模型编译框架 · 高效智能编译</p>
+                </div>
+            </div>
+            <button class="server-settings-btn" onclick="showServerSettings()">
+                <span>⚙️</span>
+                <span>服务器设置：<span id="serverUrlDisplay"></span></span>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <form id="uploadForm">
+                <!-- Model File Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span class="icon icon-file">📦</span>
+                        模型文件
+                    </div>
+                    <div class="form-group">
+                        <label for="modelFile">选择模型文件</label>
+                        <div class="file-input-wrapper">
+                            <div class="file-input-btn">
+                                <div class="file-input-icon">📁</div>
+                                <div class="file-input-text">点击选择文件或拖拽到此处</div>
+                                <div class="file-input-hint">支持 .onnx 格式模型文件</div>
+                            </div>
+                            <input type="file" id="modelFile" name="model_file" accept=".onnx" required>
+                        </div>
+                        <div class="file-name" id="fileName"></div>
+                    </div>
+                </div>
+
+                <!-- Task Info Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span class="icon icon-task">🏷️</span>
+                        任务标识
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskName">任务名称</label>
+                            <input type="text" id="taskName" name="task_name" value="task_A" required placeholder="如：task_A">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modelName">模型名称</label>
+                            <input type="text" id="modelName" name="model_name" value="yolo11s" required placeholder="如：yolo11s（不含后缀）">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="outputRoot">输出根目录</label>
+                            <input type="text" id="outputRoot" name="output_root" value="/runtime" required placeholder="如：/runtime">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compile Config Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span class="icon icon-settings">⚙️</span>
+                        编译配置
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="platform">目标平台</label>
+                            <select id="platform" name="platform" required onchange="updateDeviceOptions()">
+                                <option value="ascend">华为昇腾 (Ascend)</option>
+                                <option value="iluvatar">天数智芯 (Iluvatar)</option>
+                                <option value="rockchip">瑞芯微 (Rockchip)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deviceModel">设备型号</label>
+                            <select id="deviceModel" name="device_model" required>
+                                <option value="Ascend_310P">Ascend_310P</option>
+                                <option value="Ascend_310B">Ascend_310B</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="framework">模型框架</label>
+                            <select id="framework" name="framework">
+                                <option value="onnx">ONNX</option>
+                                <option value="caffe">Caffe</option>
+                                <option value="tensorflow">TensorFlow</option>
+                                <option value="pytorch">PyTorch</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="precision">精度</label>
+                            <select id="precision" name="precision">
+                                <option value="fp16">FP16</option>
+                                <option value="fp32">FP32</option>
+                                <option value="int8">INT8</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="inputFormat">输入格式</label>
+                            <select id="inputFormat" name="input_format">
+                                <option value="NCHW">NCHW</option>
+                                <option value="NHWC">NHWC</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quantization">是否量化</label>
+                            <select id="quantization" name="do_quantization">
+                                <option value="false">否</option>
+                                <option value="true">是</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputShape">输入形状 (JSON)</label>
+                        <input type="text" id="inputShape" name="input_shape" placeholder='例如：{"input": [1, 3, 640, 640]}' style="font-family: 'SF Mono', 'Monaco', monospace;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>输出路径预览</label>
+                        <div class="output-path-preview" id="outputPathPreview">
+                            /runtime/task_A/Ascend_310P/yolo11s_v1.om
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Push Settings Section -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span class="icon icon-push">📤</span>
+                        自动推送设置（可选）
+                    </div>
+                    <div class="form-group">
+                        <label>选择推送目标设备（可多选）</label>
+                        <div class="device-selection">
+                            <div class="device-list" id="deviceList">
+                                <div style="text-align: center; color: #94a3b8; padding: 40px;">
+                                    加载中...
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="manage-devices-btn" onclick="showDeviceModal()">
+                            <span>⚙️</span> 管理设备
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    <span class="icon icon-upload">📤</span>
+                    上传并编译
+                </button>
+            </form>
+
+            <!-- Status Box -->
+            <div class="status-box" id="statusBox"></div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+                </div>
+                <div class="progress-text" id="progressText">准备中...</div>
+            </div>
+
+            <!-- Push Progress Section -->
+            <div class="push-progress-section" id="pushProgressSection">
+                <div class="push-progress-title">
+                    <span class="icon icon-push">📤</span>
+                    推送进度
+                </div>
+                <div id="pushItemsContainer"></div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="result-section" id="resultSection">
+                <h3><span class="icon icon-download">📊</span> 编译结果</h3>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <span class="result-label">任务 ID</span>
+                        <span class="result-value" id="resultTaskId"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">任务名称</span>
+                        <span class="result-value" id="resultTaskName"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">模型名称</span>
+                        <span class="result-value" id="resultModelName"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">设备型号</span>
+                        <span class="result-value" id="resultDeviceModel"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">状态</span>
+                        <span class="result-value" id="resultStatus"></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">编译时间</span>
+                        <span class="result-value" id="resultTime"></span>
+                    </div>
+                    <div class="result-item full-width">
+                        <span class="result-label">输出文件</span>
+                        <span class="result-value" id="resultOutput"></span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-secondary btn-sm" onclick="downloadResult()">
+                        <span class="icon icon-download">📥</span>
+                        下载编译结果
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteTask()">
+                        <span class="icon icon-delete">🗑️</span>
+                        删除任务
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2026 Linkedhope Intelligent Technologies Co., Ltd.</p>
+            <p>北京鲲鹏凌昊智能技术有限公司</p>
+        </div>
+    </div>
+
+    <!-- Device Manager Modal -->
+    <div class="modal-overlay" id="deviceModalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">管理推送设备</h3>
+                <button class="modal-close" onclick="closeDeviceModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="deviceForm">
+                    <input type="hidden" id="editDeviceId">
+                    <div class="form-group">
+                        <label for="deviceName">设备名称</label>
+                        <input type="text" id="deviceName" required placeholder="如：边缘服务器 1">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="deviceIp">IP 地址</label>
+                            <input type="text" id="deviceIp" required placeholder="192.168.1.100">
+                        </div>
+                        <div class="form-group">
+                            <label for="devicePort">SSH 端口</label>
+                            <input type="number" id="devicePort" value="22" min="1" max="65535">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="deviceUsername">用户名</label>
+                            <input type="text" id="deviceUsername" required placeholder="如：admin">
+                        </div>
+                        <div class="form-group">
+                            <label for="devicePassword">密码</label>
+                            <input type="password" id="devicePassword" placeholder="留空则不修改">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="deviceTargetPath">目标路径</label>
+                        <input type="text" id="deviceTargetPath" required placeholder="如：/opt/models">
+                    </div>
+                    <div class="form-group">
+                        <label for="deviceDescription">设备描述</label>
+                        <input type="text" id="deviceDescription" placeholder="可选描述">
+                    </div>
+                </form>
+
+                <div id="existingDevicesList" style="margin-top: 24px;">
+                    <h4 style="margin-bottom: 12px; color: #1e293b;">已有设备</h4>
+                    <div id="existingDevices"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="closeDeviceModal()">取消</button>
+                <button class="btn btn-sm" onclick="saveDevice()">保存设备</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 全局变量 ====================
+        let BASE_URL = '';
+        let currentTaskId = null;
+        let pollInterval = null;
+        let pushPollInterval = null;
+        let availableDevices = [];
+        let selectedDeviceIds = [];
+
+        // ==================== 初始化 ====================
+        function detectBaseUrl() {
+            const savedBaseUrl = localStorage.getItem('apiBaseUrl');
+            if (savedBaseUrl) {
+                return savedBaseUrl;
+            }
+
+            let baseUrl = window.location.origin;
+
+            if (baseUrl.includes('0.0.0.0')) {
+                console.warn('检测到 0.0.0.0，请手动输入实际 IP 地址');
+                return null;
+            }
+
+            if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+                return baseUrl;
+            }
+
+            return baseUrl;
+        }
+
+        BASE_URL = detectBaseUrl() || 'http://localhost:8080';
+        document.getElementById('serverUrlDisplay').textContent = BASE_URL;
+
+        // 页面加载时获取设备列表
+        loadDeviceList();
+
+        // ==================== 设备管理 ====================
+        async function loadDeviceList() {
+            try {
+                const resp = await fetch(`${BASE_URL}/push-devices`);
+                if (!resp.ok) throw new Error('获取设备列表失败');
+                availableDevices = await resp.json();
+                renderDeviceSelection();
+            } catch (error) {
+                console.error('加载设备列表失败:', error);
+                document.getElementById('deviceList').innerHTML = `
+                    <div style="text-align: center; color: #ef4444; padding: 20px;">
+                        加载失败，请检查服务是否运行
+                    </div>
+                `;
+            }
+        }
+
+        function renderDeviceSelection() {
+            const container = document.getElementById('deviceList');
+
+            if (availableDevices.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: #94a3b8; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
+                        <div>暂无可用设备</div>
+                        <div style="font-size: 13px; margin-top: 8px;">点击"管理设备"添加</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = availableDevices.map(device => {
+                const isSelected = selectedDeviceIds.includes(device.id);
+
+                return `
+                    <label class="device-item ${isSelected ? 'selected' : ''}">
+                        <input type="checkbox"
+                               value="${device.id}"
+                               ${isSelected ? 'checked' : ''}
+                               onchange="toggleDeviceSelection('${device.id}')">
+                        <div class="device-info">
+                            <div class="device-name">
+                                ${device.name}
+                            </div>
+                            <div class="device-ip">📍 ${device.ip_address}:${device.port}</div>
+                            <div class="device-path">📁 ${device.target_path}</div>
+                        </div>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function toggleDeviceSelection(deviceId) {
+            const index = selectedDeviceIds.indexOf(deviceId);
+            if (index > -1) {
+                selectedDeviceIds.splice(index, 1);
+            } else {
+                selectedDeviceIds.push(deviceId);
+            }
+            renderDeviceSelection();
+        }
+
+        // ==================== 设备管理模态框 ====================
+        function showDeviceModal() {
+            document.getElementById('deviceModalOverlay').classList.add('show');
+            loadExistingDevices();
+        }
+
+        function closeDeviceModal() {
+            document.getElementById('deviceModalOverlay').classList.remove('show');
+            document.getElementById('deviceForm').reset();
+            document.getElementById('editDeviceId').value = '';
+        }
+
+        async function loadExistingDevices() {
+            try {
+                const resp = await fetch(`${BASE_URL}/push-devices`);
+                if (!resp.ok) throw new Error('获取设备列表失败');
+                const devices = await resp.json();
+
+                const container = document.getElementById('existingDevices');
+                if (devices.length === 0) {
+                    container.innerHTML = '<div style="color: #94a3b8; padding: 20px; text-align: center;">暂无设备</div>';
+                    return;
+                }
+
+                container.innerHTML = devices.map(device => `
+                    <div class="device-item" style="margin-bottom: 10px;">
+                        <div class="device-info">
+                            <div class="device-name">${device.name}</div>
+                            <div class="device-ip">${device.ip_address}:${device.port}</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-sm" style="padding: 8px 16px; width: auto;"
+                                    onclick="editDevice('${device.id}')">编辑</button>
+                            <button class="btn btn-danger btn-sm" style="padding: 8px 16px; width: auto;"
+                                    onclick="deleteDevice('${device.id}')">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载设备列表失败:', error);
+            }
+        }
+
+        async function saveDevice() {
+            const deviceId = document.getElementById('editDeviceId').value;
+            const deviceData = {
+                name: document.getElementById('deviceName').value,
+                ip_address: document.getElementById('deviceIp').value,
+                port: parseInt(document.getElementById('devicePort').value),
+                username: document.getElementById('deviceUsername').value,
+                target_path: document.getElementById('deviceTargetPath').value,
+                description: document.getElementById('deviceDescription').value
+            };
+
+            const password = document.getElementById('devicePassword').value;
+            if (password) {
+                deviceData.password = password;
+            }
+
+            try {
+                const url = deviceId ? `${BASE_URL}/push-devices/${deviceId}` : `${BASE_URL}/push-devices`;
+                const method = deviceId ? 'PUT' : 'POST';
+
+                const resp = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(deviceData)
+                });
+
+                if (!resp.ok) {
+                    const error = await resp.json();
+                    throw new Error(error.detail || '保存失败');
+                }
+
+                showStatus('✅ 设备保存成功', 'success');
+                closeDeviceModal();
+                loadDeviceList();
+            } catch (error) {
+                showStatus(`❌ ${error.message}`, 'error');
+            }
+        }
+
+        function editDevice(deviceId) {
+            const device = availableDevices.find(d => d.id === deviceId);
+            if (!device) return;
+
+            document.getElementById('editDeviceId').value = deviceId;
+            document.getElementById('deviceName').value = device.name;
+            document.getElementById('deviceIp').value = device.ip_address;
+            document.getElementById('devicePort').value = device.port;
+            document.getElementById('deviceUsername').value = device.username;
+            document.getElementById('devicePassword').value = '';
+            document.getElementById('deviceTargetPath').value = device.target_path;
+            document.getElementById('deviceDescription').value = device.description || '';
+        }
+
+        async function deleteDevice(deviceId) {
+            if (!confirm('确定要删除此设备吗？')) return;
+
+            try {
+                const resp = await fetch(`${BASE_URL}/push-devices/${deviceId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!resp.ok) {
+                    const error = await resp.json();
+                    throw new Error(error.detail || '删除失败');
+                }
+
+                showStatus('✅ 设备已删除', 'success');
+                closeDeviceModal();
+                loadDeviceList();
+            } catch (error) {
+                showStatus(`❌ ${error.message}`, 'error');
+            }
+        }
+
+        // ==================== 表单处理 ====================
+        document.getElementById('modelFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || '';
+            const fileDisplay = document.getElementById('fileName');
+            fileDisplay.textContent = fileName ? `已选择：${fileName}` : '';
+            fileDisplay.style.display = fileName ? 'block' : 'none';
+        });
+
+        // 监听表单字段变化，更新路径预览
+        ['taskName', 'modelName', 'outputRoot', 'deviceModel'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateOutputPathPreview);
+        });
+
+        function updateDeviceOptions() {
+            updateOutputPathPreview();
+        }
+
+        function updateOutputPathPreview() {
+            const taskName = document.getElementById('taskName').value || 'task_A';
+            const modelName = document.getElementById('modelName').value || 'yolo11s';
+            const outputRoot = document.getElementById('outputRoot').value || '/runtime';
+            const deviceModel = document.getElementById('deviceModel').value || 'Ascend_310P';
+
+            const extMap = {
+                'Ascend_310P': '.om',
+                'Ascend_310B': '.om',
+                'Iluvatar_MR50': '.engine',
+                'Iluvatar_MR100': '.engine',
+                'Rockchip_RK3588': '.rknn',
+                'Rockchip_RK3568': '.rknn'
+            };
+            const ext = extMap[deviceModel] || '.om';
+
+            const previewPath = `${outputRoot}/${taskName}/${deviceModel}/${modelName}_v1${ext}`;
+            document.getElementById('outputPathPreview').textContent = previewPath;
+        }
+
+        // ==================== 提交处理 ====================
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            // 添加推送设备 ID 列表
+            if (selectedDeviceIds.length > 0) {
+                formData.append('push_device_ids', JSON.stringify(selectedDeviceIds));
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const statusBox = document.getElementById('statusBox');
+            const progressContainer = document.getElementById('progressContainer');
+            const pushProgressSection = document.getElementById('pushProgressSection');
+
+            submitBtn.disabled = true;
+            statusBox.className = 'status-box';
+            statusBox.style.display = 'none';
+            progressContainer.classList.add('show');
+            pushProgressSection.classList.remove('show');
+            document.getElementById('resultSection').classList.remove('show');
+
+            try {
+                const uploadResp = await fetch(`${BASE_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResp.ok) {
+                    const error = await uploadResp.json();
+                    throw new Error(error.detail || '上传失败');
+                }
+
+                const uploadData = await uploadResp.json();
+                currentTaskId = uploadData.task_id;
+
+                showStatus(`任务已创建：${currentTaskId}`, 'info');
+                document.getElementById('progressFill').style.width = '50%';
+                document.getElementById('progressFill').textContent = '50%';
+                document.getElementById('progressText').textContent = '文件上传成功，开始编译...';
+
+                startPolling();
+
+            } catch (error) {
+                showStatus(`❌ ${error.message}`, 'error');
+                progressContainer.classList.remove('show');
+                submitBtn.disabled = false;
+            }
+        });
+
+        // ==================== 轮询处理 ====================
+        function startPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+
+            pollInterval = setInterval(async () => {
+                if (!currentTaskId) return;
+
+                try {
+                    const resp = await fetch(`${BASE_URL}/tasks/${currentTaskId}/progress`);
+                    if (!resp.ok) {
+                        const error = await resp.json();
+                        throw new Error(error.detail || '查询进度失败');
+                    }
+
+                    const data = await resp.json();
+                    updateProgress(data);
+
+                    if (data.status === 'success' || data.status === 'failed') {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                        onTaskComplete(data);
+
+                        // 如果有推送任务，开始轮询推送状态
+                        if (selectedDeviceIds.length > 0 && data.status === 'success') {
+                            startPushPolling();
+                        }
+                    }
+
+                } catch (error) {
+                    showStatus(`❌ ${error.message}`, 'error');
+                    clearInterval(pollInterval);
+                    document.getElementById('submitBtn').disabled = false;
+                }
+            }, 2000);
+        }
+
+        function startPushPolling() {
+            if (pushPollInterval) clearInterval(pushPollInterval);
+
+            pushPollInterval = setInterval(async () => {
+                try {
+                    const resp = await fetch(`${BASE_URL}/tasks/${currentTaskId}/push-status`);
+                    if (!resp.ok) return;
+
+                    const data = await resp.json();
+                    if (data.push_task_id) {
+                        updatePushProgress(data);
+
+                        if (data.status === 'success' || data.status === 'failed') {
+                            clearInterval(pushPollInterval);
+                            pushPollInterval = null;
+                            
+                            // 推送完成，显示结果
+                            if (data.status === 'success' && data.failed_count === 0) {
+                                showStatus('✅ 编译并推送成功！', 'success');
+                            } else if (data.failed_count > 0 && data.success_count > 0) {
+                                showStatus(`⚠️ 编译成功，部分推送失败（${data.success_count}/${data.total}）`, 'warning');
+                            } else {
+                                // 显示第一个失败设备的错误信息
+                                const failedItem = data.items.find(item => item.status === 'failed');
+                                const errorMsg = failedItem?.error_message || '未知错误';
+                                showStatus(`❌ 推送失败：${errorMsg}`, 'error');
+                            }
+                            
+                            showResult(data);
+                        }
+                    }
+                } catch (error) {
+                    console.error('查询推送状态失败:', error);
+                }
+            }, 1000);
+        }
+
+        function updateProgress(data) {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+
+            progressFill.style.width = `${data.progress}%`;
+            progressFill.textContent = `${data.progress}%`;
+            progressText.textContent = data.message || '处理中...';
+
+            if (data.status === 'running') {
+                progressFill.style.background = 'linear-gradient(90deg, #3b82f6 0%, #2563eb 50%, #3b82f6 100%)';
+                progressFill.style.backgroundSize = '200% 100%';
+            } else if (data.status === 'success') {
+                progressFill.style.background = 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
+                progressFill.style.backgroundSize = '100% 100%';
+            } else if (data.status === 'failed') {
+                progressFill.style.background = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
+                progressFill.style.backgroundSize = '100% 100%';
+            }
+        }
+
+        function updatePushProgress(data) {
+            const container = document.getElementById('pushItemsContainer');
+            container.classList.add('show');
+
+            const statusIcons = {
+                'pending': '⏳',
+                'running': '🔄',
+                'success': '✅',
+                'failed': '❌'
+            };
+
+            container.innerHTML = data.items.map(item => `
+                <div class="push-item">
+                    <div class="push-item-icon">${statusIcons[item.status] || '⏳'}</div>
+                    <div class="push-item-info">
+                        <div class="push-item-name">${item.device_name}</div>
+                        <div class="push-item-path">${item.remote_file}</div>
+                        <div class="push-item-progress">
+                            <div class="push-item-progress-bar" style="width: ${item.progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="push-item-status">
+                        ${item.message || item.status}
+                        ${item.error_message ? `<div class="push-item-error">${item.error_message}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function onTaskComplete(data) {
+            const submitBtn = document.getElementById('submitBtn');
+            const statusBox = document.getElementById('statusBox');
+            const resultSection = document.getElementById('resultSection');
+
+            submitBtn.disabled = false;
+
+            if (data.status === 'success') {
+                // 检查是否有推送任务
+                if (data.push_status) {
+                    // 等待推送完成后显示结果
+                    console.log('等待推送完成...');
+                } else {
+                    showStatus('✅ 编译成功！', 'success');
+                    showResult(data);
+                }
+            } else {
+                showStatus(`❌ 编译失败：${data.error_message || '未知错误'}`, 'error');
+            }
+        }
+
+        function showResult(data) {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.add('show');
+
+            document.getElementById('resultTaskId').textContent = currentTaskId;
+            document.getElementById('resultTaskName').textContent = document.getElementById('taskName').value;
+            document.getElementById('resultModelName').textContent = document.getElementById('modelName').value;
+            document.getElementById('resultDeviceModel').textContent = document.getElementById('deviceModel').value;
+            document.getElementById('resultStatus').textContent = data.status;
+            document.getElementById('resultTime').textContent = data.compile_time ? `${data.compile_time.toFixed(2)}秒` : '-';
+            document.getElementById('resultOutput').textContent = data.output_path || '-';
+        }
+
+        function showStatus(message, type) {
+            const statusBox = document.getElementById('statusBox');
+            statusBox.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</span><span>${message}</span>`;
+            statusBox.className = `status-box show ${type}`;
+            statusBox.style.display = 'flex';
+        }
+
+        async function downloadResult() {
+            if (!currentTaskId) return;
+
+            try {
+                const resp = await fetch(`${BASE_URL}/download/${currentTaskId}`);
+                if (!resp.ok) {
+                    const error = await resp.json();
+                    throw new Error(error.detail || '下载失败');
+                }
+
+                const blob = await resp.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `model_${currentTaskId}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showStatus('✅ 下载完成！', 'success');
+
+            } catch (error) {
+                showStatus(`❌ ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteTask() {
+            if (!currentTaskId) return;
+
+            if (!confirm(`确定要删除任务 ${currentTaskId} 吗？`)) return;
+
+            try {
+                const resp = await fetch(`${BASE_URL}/cache/${currentTaskId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!resp.ok) {
+                    const error = await resp.json();
+                    throw new Error(error.detail || '删除失败');
+                }
+
+                showStatus('✅ 任务已删除', 'success');
+                currentTaskId = null;
+                document.getElementById('resultSection').classList.remove('show');
+
+            } catch (error) {
+                showStatus(`❌ ${error.message}`, 'error');
+            }
+        }
+
+        function showServerSettings() {
+            const newUrl = prompt('请输入 API 服务器地址:\n\n提示：\n- 本机访问：http://localhost:8080\n- 局域网访问：http://192.168.x.x:8080', BASE_URL);
+            if (newUrl && newUrl !== BASE_URL) {
+                try {
+                    new URL(newUrl);
+                    BASE_URL = newUrl;
+                    localStorage.setItem('apiBaseUrl', BASE_URL);
+                    document.getElementById('serverUrlDisplay').textContent = BASE_URL;
+                    showStatus(`✅ 服务器地址已更新：${BASE_URL}`, 'info');
+                } catch (e) {
+                    showStatus('❌ 无效的 URL 格式', 'error');
+                }
+            }
+        }
+
+        // 初始化
+        updateOutputPathPreview();
+    </script>
+</body>
+</html>
