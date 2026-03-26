@@ -57,12 +57,21 @@ class DeviceManager:
 
         try:
             with open(self.config_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
+                content = f.read()
+                # 处理空文件情况
+                if not content.strip():
+                    self._save_devices()
+                    return
+                data = json.loads(content)
 
             for device_data in data.get("devices", []):
                 device = TargetDevice(**device_data)
                 self.devices[device.id] = device
 
+        except json.JSONDecodeError as e:
+            print(f"配置文件格式错误：{e}，重置为空配置")
+            self._save_devices()
+            self.devices = {}
         except Exception as e:
             print(f"加载设备配置失败：{e}")
             self.devices = {}

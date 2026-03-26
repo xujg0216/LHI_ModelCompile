@@ -1265,23 +1265,35 @@
         BASE_URL = detectBaseUrl() || 'http://localhost:8080';
         document.getElementById('serverUrlDisplay').textContent = BASE_URL;
 
-        // 页面加载时获取设备列表
-        loadDeviceList();
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDeviceOptions();  // 初始化设备型号选项
+            loadDeviceList();
+            updateOutputPathPreview();
+        });
 
         // ==================== 设备管理 ====================
-        async function loadDeviceList() {
+        async function loadDeviceList(retryCount = 0) {
             try {
                 const resp = await fetch(`${BASE_URL}/push-devices`);
-                if (!resp.ok) throw new Error('获取设备列表失败');
-                availableDevices = await resp.json();
+                if (!resp.ok) {
+                    throw new Error(`获取设备列表失败：HTTP ${resp.status}`);
+                }
+                const data = await resp.json();
+                availableDevices = Array.isArray(data) ? data : [];
                 renderDeviceSelection();
             } catch (error) {
-                console.error('加载设备列表失败:', error);
-                document.getElementById('deviceList').innerHTML = `
-                    <div style="text-align: center; color: #ef4444; padding: 20px;">
-                        加载失败，请检查服务是否运行
-                    </div>
-                `;
+                console.error(`加载设备列表失败 (尝试 ${retryCount + 1}/3):`, error);
+                
+                // 最多重试 3 次
+                if (retryCount < 3) {
+                    setTimeout(() => loadDeviceList(retryCount + 1), 500 * (retryCount + 1));
+                    return;
+                }
+                
+                console.error('加载设备列表最终失败，使用空列表');
+                availableDevices = [];
+                renderDeviceSelection();
             }
         }
 
@@ -1345,8 +1357,11 @@
         async function loadExistingDevices() {
             try {
                 const resp = await fetch(`${BASE_URL}/push-devices`);
-                if (!resp.ok) throw new Error('获取设备列表失败');
-                const devices = await resp.json();
+                if (!resp.ok) {
+                    throw new Error(`获取设备列表失败：HTTP ${resp.status}`);
+                }
+                const data = await resp.json();
+                const devices = Array.isArray(data) ? data : [];
 
                 const container = document.getElementById('existingDevices');
                 if (devices.length === 0) {
@@ -1370,6 +1385,8 @@
                 `).join('');
             } catch (error) {
                 console.error('加载设备列表失败:', error);
+                const container = document.getElementById('existingDevices');
+                container.innerHTML = '<div style="color: #94a3b8; padding: 20px; text-align: center;">加载失败</div>';
             }
         }
 
@@ -1461,6 +1478,36 @@
         });
 
         function updateDeviceOptions() {
+            const platform = document.getElementById('platform').value;
+            const deviceModelSelect = document.getElementById('deviceModel');
+            
+            // 根据平台获取设备型号选项
+            const deviceOptions = {
+                'ascend': [
+                    { value: 'Ascend_310P', name: 'Ascend 310P' },
+                    { value: 'Ascend_310B', name: 'Ascend 310B' },
+                ],
+                'iluvatar': [
+                    { value: 'Iluvatar_MR50', name: 'MR50' },
+                    { value: 'Iluvatar_MR100', name: 'MR100' }
+                ],
+                'rockchip': [
+                    { value: 'Rockchip_RK3588', name: 'RK3588' },
+                ]
+            };
+            
+            // 清空现有选项
+            deviceModelSelect.innerHTML = '';
+            
+            // 添加新选项
+            const options = deviceOptions[platform] || [];
+            options.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.name;
+                deviceModelSelect.appendChild(option);
+            });
+            
             updateOutputPathPreview();
         }
 
@@ -1476,7 +1523,6 @@
                 'Iluvatar_MR50': '.engine',
                 'Iluvatar_MR100': '.engine',
                 'Rockchip_RK3588': '.rknn',
-                'Rockchip_RK3568': '.rknn'
             };
             const ext = extMap[deviceModel] || '.om';
 
@@ -1702,6 +1748,19 @@
             if (!currentTaskId) return;
 
             try {
+                // 先获取任务信息，获取正确的输出文件名
+                const taskResp = await fetch(`${BASE_URL}/tasks/${currentTaskId}/progress`);
+                if (!taskResp.ok) {
+                    throw new Error('获取任务信息失败');
+                }
+                const taskInfo = await taskResp.json();
+                
+                // 从 output_path 提取文件名
+                let filename = 'model.om';
+                if (taskInfo.output_path) {
+                    filename = taskInfo.output_path.split('/').pop();
+                }
+
                 const resp = await fetch(`${BASE_URL}/download/${currentTaskId}`);
                 if (!resp.ok) {
                     const error = await resp.json();
@@ -1712,7 +1771,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `model_${currentTaskId}`;
+                a.download = filename;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -1758,6 +1817,8 @@
                     localStorage.setItem('apiBaseUrl', BASE_URL);
                     document.getElementById('serverUrlDisplay').textContent = BASE_URL;
                     showStatus(`✅ 服务器地址已更新：${BASE_URL}`, 'info');
+                    // 重新加载设备列表
+                    loadDeviceList();
                 } catch (e) {
                     showStatus('❌ 无效的 URL 格式', 'error');
                 }

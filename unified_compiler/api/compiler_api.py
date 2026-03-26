@@ -359,10 +359,10 @@ def create_app() -> FastAPI:
         """根路径 - 返回上传页面"""
         return FileResponse(os.path.join(current_dir, "upload_v4.html"))
 
-    @app.get("/test_upload.html", tags=["Root"])
+    @app.get("/upload_v4.html", tags=["Root"])
     async def get_test_page():
         """获取测试页面"""
-        return FileResponse(os.path.join(current_dir, "test_upload.html"))
+        return FileResponse(os.path.join(current_dir, "upload_v4.html"))
 
     @app.get("/upload_v4.html", tags=["Root"])
     async def get_upload_v4_page():
