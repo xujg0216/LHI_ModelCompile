@@ -26,22 +26,22 @@ from datetime import datetime
 
 class PlatformEnum(str, Enum):
     """支持的平台枚举"""
-    ASCEND = "ascend"
-    ILUVATAR = "iluvatar"
-    ROCKCHIP = "rockchip"
+    ASCEND = "ASCEND"
+    ILUVATAR = "ILUVATAR"
+    ROCKCHIP = "ROCKCHIP"
 
 
 class DeviceModelEnum(str, Enum):
     """设备型号枚举"""
     # Ascend 设备
-    ASCEND_310P = "Ascend_310P"
-    ASCEND_310B = "Ascend_310B"
+    ASCEND_310P = "ASCEND_310P"
+    ASCEND_310B = "ASCEND_310B"
     # Iluvatar 设备
-    ILUVATAR_MR50 = "Iluvatar_MR50"
-    ILUVATAR_MR100 = "Iluvatar_MR100"
+    ILUVATAR_MR50 = "ILUVATAR_MR50"
+    ILUVATAR_MR100 = "ILUVATAR_MR100"
     # Rockchip 设备
-    ROCKCHIP_RK3588 = "Rockchip_RK3588"
-    ROCKCHIP_RK3568 = "Rockchip_RK3568"
+    ROCKCHIP_RK3588 = "ROCKCHIP_RK3588"
+    ROCKCHIP_RK3568 = "ROCKCHIP_RK3568"
 
 
 class CompileStatusEnum(str, Enum):
@@ -86,7 +86,7 @@ class CompileRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "platform": "ascend",
+                "platform": "ASCEND",
                 "model_path": "/path/to/model.onnx",
                 "output_path": "/path/to/output.om",
                 "input_shape": {"input": [1, 3, 640, 640]},
@@ -124,7 +124,7 @@ class CompileResponse(BaseModel):
                 "message": "编译成功",
                 "output_path": "/path/to/output.om",
                 "compile_time": 12.5,
-                "model_info": {"platform": "ascend", "format": "om"},
+                "model_info": {"platform": "ASCEND", "format": "om"},
                 "warnings": [],
                 "created_at": "2024-01-01T12:00:00",
                 "updated_at": "2024-01-01T12:00:12"

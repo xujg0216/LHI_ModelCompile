@@ -59,9 +59,9 @@ class ConfigLoader:
         # 解析平台类型
         platform_str = config_dict.get("platform", "").lower()
         platform_map = {
-            "ascend": PlatformType.ASCEND,
-            "iluvatar": PlatformType.ILUVATAR,
-            "rockchip": PlatformType.ROCKCHIP
+            "ASCEND": PlatformType.ASCEND,
+            "ILUVATAR": PlatformType.ILUVATAR,
+            "ROCKCHIP": PlatformType.ROCKCHIP
         }
         platform = platform_map.get(platform_str)
         if platform is None:

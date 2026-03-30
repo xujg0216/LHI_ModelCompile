@@ -34,7 +34,7 @@ class AscendCompiler(BaseCompiler):
     
     @property
     def platform_name(self) -> str:
-        return "Ascend"
+        return "ASCEND"
     
     def _pre_compile_check(self):
         """昇腾平台特有的检查"""
@@ -84,7 +84,7 @@ class AscendCompiler(BaseCompiler):
                     status=CompileStatus.SUCCESS,
                     output_path=output_file,
                     model_info={
-                        "platform": "Ascend",
+                        "platform": "ASCEND",
                         "soc_version": pcfg.get("soc_version", "Ascend310P1"),
                         "format": "om"
                     }
@@ -138,4 +138,4 @@ class AscendCompiler(BaseCompiler):
     def _log(self, message: str):
         """日志输出"""
         if self.config.verbose:
-            print(f"[Ascend] {message}")
+            print(f"[ASCEND] {message}")

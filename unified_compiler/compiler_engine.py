@@ -77,7 +77,7 @@ class ModelCompileEngine:
         """
         # 解析平台类型
         if isinstance(platform, str):
-            platform = PlatformType(platform.lower())
+            platform = PlatformType(platform.upper())
         
         # 构建配置
         config = CompileConfig(
@@ -193,8 +193,8 @@ class ModelCompileEngine:
         platform_type = PlatformType(platform.lower())
         
         templates = {
-            "ascend": {
-                "platform": "ascend",
+            "ASCEND": {
+                "platform": "ASCEND",
                 "model_path": "model.onnx",
                 "output_path": "model.om",
                 "framework": "onnx",
@@ -206,8 +206,8 @@ class ModelCompileEngine:
                     "framework": 5
                 }
             },
-            "iluvatar": {
-                "platform": "iluvatar",
+            "ILUVATAR": {
+                "platform": "ILUVATAR",
                 "model_path": "model.onnx",
                 "output_path": "model.engine",
                 "framework": "onnx",
@@ -219,8 +219,8 @@ class ModelCompileEngine:
                     "libs": "cudnn,cublas,ixinfer"
                 }
             },
-            "rockchip": {
-                "platform": "rockchip",
+            "ROCKCHIP": {
+                "platform": "ROCKCHIP",
                 "model_path": "model.onnx",
                 "output_path": "model.rknn",
                 "framework": "onnx",

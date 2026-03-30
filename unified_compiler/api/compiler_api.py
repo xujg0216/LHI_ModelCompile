@@ -85,12 +85,12 @@ def get_next_version(output_dir: Path, model_name: str, device_model: str) -> st
     
     # 获取输出文件的扩展名（根据平台）
     ext_map = {
-        "Ascend_310P": ".om",
-        "Ascend_310B": ".om",
-        "Iluvatar_MR50": ".engine",
-        "Iluvatar_MR100": ".engine",
-        "Rockchip_RK3588": ".rknn",
-        "Rockchip_RK3568": ".rknn",
+        "ASCEND_310P": ".om",
+        "ASCEND_310B": ".om",
+        "ILUVATAR_MR50": ".engine",
+        "ILUVATAR_MR100": ".engine",
+        "ROCKCHIP_RK3588": ".rknn",
+        "ROCKCHIP_RK3568": ".rknn",
     }
     ext = ext_map.get(device_model, ".om")
     
@@ -119,12 +119,12 @@ def build_output_path(output_root: str, task_name: str, device_model: str,
     """
     # 根据设备型号确定扩展名
     ext_map = {
-        "Ascend_310P": ".om",
-        "Ascend_310B": ".om",
-        "Iluvatar_MR50": ".engine",
-        "Iluvatar_MR100": ".engine",
-        "Rockchip_RK3588": ".rknn",
-        "Rockchip_RK3568": ".rknn",
+        "ASCEND_310P": ".om",
+        "ASCEND_310B": ".om",
+        "ILUVATAR_MR50": ".engine",
+        "ILUVATAR_MR100": ".engine",
+        "ROCKCHIP_RK3588": ".rknn",
+        "ROCKCHIP_RK3568": ".rknn",
     }
     ext = ext_map.get(device_model, ".om")
     
@@ -399,21 +399,21 @@ def create_app() -> FastAPI:
     async def list_platforms():
         """获取支持的平台列表"""
         platforms = {
-            "ascend": {
+            "ASCEND": {
                 "name": "华为昇腾",
-                "value": "ascend",
+                "value": "ASCEND",
                 "supported": True,
                 "description": "华为昇腾 NPU，支持 ATC 编译工具"
             },
-            "iluvatar": {
-                "name": "天数智芯 Iluvatar",
-                "value": "iluvatar",
+            "ILUVATAR": {
+                "name": "天数智芯 ILUVATAR",
+                "value": "ILUVATAR",
                 "supported": True,
-                "description": "天数智芯 Iluvatar NPU"
+                "description": "天数智芯 ILUVATAR NPU"
             },
-            "rockchip": {
-                "name": "瑞芯微 Rockchip",
-                "value": "rockchip",
+            "ROCKCHIP": {
+                "name": "瑞芯微 ROCKCHIP",
+                "value": "ROCKCHIP",
                 "supported": True,
                 "description": "瑞芯微 NPU"
             }
@@ -430,12 +430,12 @@ def create_app() -> FastAPI:
     async def list_devices():
         """获取支持的设备型号列表"""
         devices = [
-            {"name": "昇腾 310P", "value": "Ascend_310P", "platform": "ascend", "description": "华为昇腾 310P 推理卡"},
-            {"name": "昇腾 310B", "value": "Ascend_310B", "platform": "ascend", "description": "华为昇腾 310B 推理卡"},
-            {"name": "MR50", "value": "Iluvatar_MR50", "platform": "iluvatar", "description": "天数智芯 MR50 推理卡"},
-            {"name": "MR100", "value": "Iluvatar_MR100", "platform": "iluvatar", "description": "天数智芯 MR100 推理卡"},
-            {"name": "RK3588", "value": "Rockchip_RK3588", "platform": "rockchip", "description": "瑞芯微 RK3588 SoC"},
-            {"name": "RK3568", "value": "Rockchip_RK3568", "platform": "rockchip", "description": "瑞芯微 RK3568 SoC"},
+            {"name": "昇腾 310P", "value": "ASCEND_310P", "platform": "ASCEND", "description": "华为昇腾 310P 推理卡"},
+            {"name": "昇腾 310B", "value": "ASCEND_310B", "platform": "ASCEND", "description": "华为昇腾 310B 推理卡"},
+            {"name": "MR50", "value": "ILUVATAR_MR50", "platform": "ILUVATAR", "description": "天数智芯 MR50 推理卡"},
+            {"name": "MR100", "value": "ILUVATAR_MR100", "platform": "ILUVATAR", "description": "天数智芯 MR100 推理卡"},
+            {"name": "RK3588", "value": "ROCKCHIP_RK3588", "platform": "ROCKCHIP", "description": "瑞芯微 RK3588 SoC"},
+            {"name": "RK3568", "value": "ROCKCHIP_RK3568", "platform": "ROCKCHIP", "description": "瑞芯微 RK3568 SoC"},
         ]
         return [DeviceInfo(**d) for d in devices]
 

@@ -1,5 +1,5 @@
 """
-@Descripttion: 天数智芯 Iluvatar 编译器实现 - 使用 ixrt API
+@Descripttion: 天数智芯 ILUVATAR 编译器实现 - 使用 ixrt API
 @File: iluvatar_compiler.py
 @Author: Software R&D Department 3
 @Version: 0.1
@@ -8,7 +8,7 @@
 @Copyright:
     © 2026 北京鲲鹏凌昊智能技术有限公司 版权所有
 @Notice:
-    注意: 以下内容均为北京鲲鹏凌昊智能技术有限公司原创，
+    注意：以下内容均为北京鲲鹏凌昊智能技术有限公司原创，
     未经本公司允许，不得转载，否则视为侵权;
     对于不遵守此声明或其他违法使用以下内容者，
     本公司依法保留追究权。
@@ -28,14 +28,14 @@ from ..core.base_compiler import PlatformType
 
 @CompilerRegistry.register(PlatformType.ILUVATAR)
 class IluvatarCompiler(BaseCompiler):
-    """天数智芯 Iluvatar ixrt 编译器封装"""
+    """天数智芯 ILUVATAR ixrt 编译器封装"""
 
     @property
     def platform_name(self) -> str:
-        return "Iluvatar"
+        return "ILUVATAR"
 
     def _pre_compile_check(self):
-        """Iluvatar 平台特有的检查"""
+        """ILUVATAR 平台特有的检查"""
         super()._pre_compile_check()
 
         # 检查 ixrt 是否可用
@@ -124,7 +124,7 @@ class IluvatarCompiler(BaseCompiler):
                 status=CompileStatus.SUCCESS,
                 output_path=output_path,
                 model_info={
-                    "platform": "Iluvatar",
+                    "platform": "ILUVATAR",
                     "format": "engine",
                     "precision": "int8" if use_int8 else "fp16",
                 }
@@ -149,4 +149,4 @@ class IluvatarCompiler(BaseCompiler):
     def _log(self, message: str):
         """日志输出"""
         if self.config.verbose:
-            print(f"[Iluvatar] {message}")
+            print(f"[ILUVATAR] {message}")

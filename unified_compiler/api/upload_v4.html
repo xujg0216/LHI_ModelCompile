@@ -442,9 +442,9 @@
             margin-left: 8px;
         }
 
-        .badge-ascend { background: #dc7f41; color: white; }
-        .badge-iluvatar { background: #6366f1; color: white; }
-        .badge-rockchip { background: #10b981; color: white; }
+        .badge-ASCEND { background: #dc7f41; color: white; }
+        .badge-ILUVATAR { background: #6366f1; color: white; }
+        .badge-ROCKCHIP { background: #10b981; color: white; }
 
         .manage-devices-btn {
             display: inline-flex;
@@ -1011,17 +1011,17 @@
                         <div class="form-group">
                             <label for="platform">目标平台</label>
                             <select id="platform" name="platform" required onchange="updateDeviceOptions()">
-                                <option value="ascend">华为昇腾 (Ascend)</option>
-                                <option value="iluvatar">天数智芯 (Iluvatar)</option>
-                                <option value="rockchip">瑞芯微 (Rockchip)</option>
+                                <option value="ASCEND">华为昇腾 (ASCEND)</option>
+                                <option value="ILUVATAR">天数智芯 (ILUVATAR)</option>
+                                <option value="ROCKCHIP">瑞芯微 (ROCKCHIP)</option>
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="deviceModel">设备型号</label>
                             <select id="deviceModel" name="device_model" required>
-                                <option value="Ascend_310P">Ascend_310P</option>
-                                <option value="Ascend_310B">Ascend_310B</option>
+                                <option value="ASCEND_310P">ASCEND_310P</option>
+                                <option value="ASCEND_310B">ASCEND_310B</option>
                             </select>
                         </div>
 
@@ -1071,7 +1071,7 @@
                     <div class="form-group">
                         <label>输出路径预览</label>
                         <div class="output-path-preview" id="outputPathPreview">
-                            /runtime/task_A/Ascend_310P/yolo11s_v1.om
+                            /runtime/task_A/ASCEND_310P/yolo11s_v1.om
                         </div>
                     </div>
                 </div>
@@ -1483,16 +1483,16 @@
             
             // 根据平台获取设备型号选项
             const deviceOptions = {
-                'ascend': [
-                    { value: 'Ascend_310P', name: 'Ascend 310P' },
-                    { value: 'Ascend_310B', name: 'Ascend 310B' },
+                'ASCEND': [
+                    { value: 'ASCEND_310P', name: 'ASCEND 310P' },
+                    { value: 'ASCEND_310B', name: 'ASCEND 310B' },
                 ],
-                'iluvatar': [
-                    { value: 'Iluvatar_MR50', name: 'MR50' },
-                    { value: 'Iluvatar_MR100', name: 'MR100' }
+                'ILUVATAR': [
+                    { value: 'ILUVATAR_MR50', name: 'MR50' },
+                    { value: 'ILUVATAR_MR100', name: 'MR100' }
                 ],
-                'rockchip': [
-                    { value: 'Rockchip_RK3588', name: 'RK3588' },
+                'ROCKCHIP': [
+                    { value: 'ROCKCHIP_RK3588', name: 'RK3588' },
                 ]
             };
             
@@ -1515,14 +1515,14 @@
             const taskName = document.getElementById('taskName').value || 'task_A';
             const modelName = document.getElementById('modelName').value || 'yolo11s';
             const outputRoot = document.getElementById('outputRoot').value || '/runtime';
-            const deviceModel = document.getElementById('deviceModel').value || 'Ascend_310P';
+            const deviceModel = document.getElementById('deviceModel').value || 'ASCEND_310P';
 
             const extMap = {
-                'Ascend_310P': '.om',
-                'Ascend_310B': '.om',
-                'Iluvatar_MR50': '.engine',
-                'Iluvatar_MR100': '.engine',
-                'Rockchip_RK3588': '.rknn',
+                'ASCEND_310P': '.om',
+                'ASCEND_310B': '.om',
+                'ILUVATAR_MR50': '.engine',
+                'ILUVATAR_MR100': '.engine',
+                'ROCKCHIP_RK3588': '.rknn',
             };
             const ext = extMap[deviceModel] || '.om';
 

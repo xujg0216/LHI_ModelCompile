@@ -1,5 +1,5 @@
 """
-@Descripttion: 瑞芯微 Rockchip 编译器实现
+@Descripttion: 瑞芯微 ROCKCHIP 编译器实现
 @File: rockchip_compiler.py
 @Author: Software R&D Department 3
 @Version: 0.1
@@ -8,7 +8,7 @@
 @Copyright:
     © 2026 北京鲲鹏凌昊智能技术有限公司 版权所有
 @Notice:
-    注意: 以下内容均为北京鲲鹏凌昊智能技术有限公司原创，
+    注意：以下内容均为北京鲲鹏凌昊智能技术有限公司原创，
     未经本公司允许，不得转载，否则视为侵权;
     对于不遵守此声明或其他违法使用以下内容者，
     本公司依法保留追究权。
@@ -17,8 +17,6 @@
     NOTICE: All information contained here is, and remains the property of LinkedHope.
     This file cannot be copied or distributed without permission.
 """
-
-import os
 import shutil
 from typing import Dict, Any, List
 
@@ -29,14 +27,14 @@ from ..core.base_compiler import PlatformType
 
 @CompilerRegistry.register(PlatformType.ROCKCHIP)
 class RockchipCompiler(BaseCompiler):
-    """瑞芯微 Rockchip RKNN 编译器封装"""
+    """瑞芯微 ROCKCHIP RKNN 编译器封装"""
 
     @property
     def platform_name(self) -> str:
-        return "Rockchip"
+        return "ROCKCHIP"
 
     def _pre_compile_check(self):
-        """Rockchip 平台特有的检查"""
+        """ROCKCHIP 平台特有的检查"""
         super()._pre_compile_check()
 
         # 检查 RKNN API 是否可用
@@ -124,7 +122,7 @@ class RockchipCompiler(BaseCompiler):
                 status=CompileStatus.SUCCESS,
                 output_path=output_path,
                 model_info={
-                    "platform": "Rockchip",
+                    "platform": "ROCKCHIP",
                     "target_platform": pcfg.get("target_platform", "rk3588"),
                     "quantization": self.config.do_quantization,
                     "format": "rknn"
@@ -151,4 +149,4 @@ class RockchipCompiler(BaseCompiler):
     def _log(self, message: str):
         """日志输出"""
         if self.config.verbose:
-            print(f"[Rockchip] {message}")
+            print(f"[ROCKCHIP] {message}")

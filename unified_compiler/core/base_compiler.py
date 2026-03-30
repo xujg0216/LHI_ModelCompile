@@ -28,10 +28,10 @@ from datetime import datetime
 
 class PlatformType(Enum):
     """支持的硬件平台类型"""
-    ASCEND = "ascend"           # 华为昇腾
-    ILUVATAR = "iluvatar"       # 天数智芯 Iluvatar (MR 系列)
-    ROCKCHIP = "rockchip"       # 瑞芯微 Rockchip (RKNN)
-    CUSTOM = "custom"           # 自定义平台
+    ASCEND = "ASCEND"           # 华为昇腾
+    ILUVATAR = "ILUVATAR"       # 天数智芯 Iluvatar (MR 系列)
+    ROCKCHIP = "ROCKCHIP"       # 瑞芯微 Rockchip (RKNN)
+    CUSTOM = "CUSTOM"           # 自定义平台
 
 
 class CompileStatus(Enum):

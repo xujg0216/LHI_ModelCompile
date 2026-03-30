@@ -60,7 +60,7 @@ def main():
     # compile 命令
     compile_parser = subparsers.add_parser("compile", help="编译模型到指定平台")
     compile_parser.add_argument("--platform", "-p", required=True,
-                                choices=["ascend", "iluvatar", "rockchip"],
+                                choices=["ASCENND", "ILUVATAR", "ROCKCHIP"],
                                 help="目标平台")
     compile_parser.add_argument("--model", "-m", required=True,
                                 help="输入模型路径")
@@ -99,7 +99,7 @@ def main():
     template_parser = subparsers.add_parser("gen-template",
                                             help="生成配置模板")
     template_parser.add_argument("--platform", "-p", required=True,
-                                 choices=["ascend", "iluvatar", "rockchip"],
+                                 choices=["ASCEND", "ILUVATAR", "ROCKCHIP"],
                                  help="目标平台")
     template_parser.add_argument("--output", "-o", required=True,
                                  help="输出文件路径")

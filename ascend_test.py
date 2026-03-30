@@ -24,8 +24,8 @@ engine = ModelCompileEngine(verbose=True)
 
 # 编译到昇腾平台
 result = engine.compile(
-    platform="ascend",
-    model_path="yolo11s.onnx",
+    platform="ASCEND",
+    model_path="/home/linkedhope/xujg/yolo11s.onnx",
     output_path="yolo11s.om",
     input_shape={"images": [1, 3, 640, 640]},
 )
